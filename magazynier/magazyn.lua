@@ -2,7 +2,7 @@
 -- Uwaga: Zakaz używania tego skryptu bez zgody autora.
 -- Linie na użytkowanie można nabyć u autora.
 -- Autor: OLDClassicRPG
----------------------------------------------
+---------------------------------------------elo
 
 
 
