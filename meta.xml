@@ -1,0 +1,6 @@
+<meta>
+    <info name="Mechanic System" type="script" version="1.0" author="YourName"/>
+    <script src="server.lua" type="server"/>
+    <script src="client.lua" type="client"/>
+    <file src="gui/Deska.png"/>
+</meta>
