@@ -37,3 +37,28 @@ end
 
 -- Wywołanie funkcji bindToggleLightsKey po załadowaniu skryptu
 addEventHandler("onClientResourceStart", resourceRoot, bindToggleLightsKey)
+
+
+-- Serwer: montowanie obiektu koguta na dachu śmieciarki
+addEventHandler("onResourceStart", resourceRoot,
+    function()
+        local kogutID = 2004  -- ID obiektu koguta
+        local smieciarkaID = 408  -- ID śmieciarki
+
+        -- Funkcja do zamontowania koguta na dachu śmieciarki
+        function mountKogut()
+            for _, gracz in ipairs(getElementsByType("player")) do
+                local pojazd = getPedOccupiedVehicle(gracz)
+                if pojazd and getElementModel(pojazd) == smieciarkaID then
+                    local kogut = createObject(kogutID, 0, 0, 0, 0, 0, 0)
+                    local px, py, pz = getElementPosition(pojazd)
+                    attachElements(kogut, pojazd, 0, 0, 2)  
+                    setElementPosition(kogut, px, py, pz + 3)  
+                end
+            end
+        end
+
+        -- Aktywuj funkcję przy każdym wejściu gracza do pojazdu
+        addEventHandler("onPlayerVehicleEnter", root, mountKogut)
+    end
+)
