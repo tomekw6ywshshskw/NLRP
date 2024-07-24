@@ -1,0 +1,100 @@
+local mechanicWindow
+local selectedParts = {}
+
+-- Funkcja otwierająca GUI mechanika
+function openMechanicGUI()
+    if mechanicWindow and isElement(mechanicWindow) then
+        destroyElement(mechanicWindow)
+    end
+
+    local screenW, screenH = guiGetScreenSize()
+    local windowW, windowH = 400, 400
+    local x, y = (screenW - windowW) / 2, (screenH - windowH) / 2
+
+    mechanicWindow = guiCreateWindow(x, y, windowW, windowH, "Mechanik", false)
+    guiWindowSetSizable(mechanicWindow, false)
+    guiSetAlpha(mechanicWindow, 0.9)
+
+    local bgImage = guiCreateStaticImage(0, 0, 400, 400, "Deska.png", false, mechanicWindow)
+
+    local btnEngine = guiCreateCheckBox(0.1, 0.1, 0.8, 0.1, "Napraw Silnik (500$)", false, true, bgImage)
+    local btnLeftDoor = guiCreateCheckBox(0.1, 0.2, 0.8, 0.1, "Napraw Lewe Drzwi (200$)", false, true, bgImage)
+    local btnRightDoor = guiCreateCheckBox(0.1, 0.3, 0.8, 0.1, "Napraw Prawe Drzwi (200$)", false, true, bgImage)
+    local btnHood = guiCreateCheckBox(0.1, 0.4, 0.8, 0.1, "Napraw Maskę (300$)", false, true, bgImage)
+    local btnTrunk = guiCreateCheckBox(0.1, 0.5, 0.8, 0.1, "Napraw Bagażnik (250$)", false, true, bgImage)
+    local btnFrontBumper = guiCreateCheckBox(0.1, 0.6, 0.8, 0.1, "Napraw Przedni Zderzak (150$)", false, true, bgImage)
+    local btnRearBumper = guiCreateCheckBox(0.1, 0.7, 0.8, 0.1, "Napraw Tylny Zderzak (150$)", false, true, bgImage)
+
+    local lblTotal = guiCreateLabel(0.1, 0.8, 0.8, 0.1, "Łączny koszt: 0$", true, bgImage)
+    guiLabelSetHorizontalAlign(lblTotal, "center")
+
+    local btnRepair = guiCreateButton(0.1, 0.9, 0.35, 0.1, "Napraw", true, bgImage)
+    local btnClose = guiCreateButton(0.55, 0.9, 0.35, 0.1, "Zamknij", true, bgImage)
+
+    local function updateTotalCost()
+        local totalCost = 0
+        selectedParts = {}
+        if guiCheckBoxGetSelected(btnEngine) then
+            totalCost = totalCost + 500
+            selectedParts["engine"] = true
+        end
+        if guiCheckBoxGetSelected(btnLeftDoor) then
+            totalCost = totalCost + 200
+            selectedParts["left_door"] = true
+        end
+        if guiCheckBoxGetSelected(btnRightDoor) then
+            totalCost = totalCost + 200
+            selectedParts["right_door"] = true
+        end
+        if guiCheckBoxGetSelected(btnHood) then
+            totalCost = totalCost + 300
+            selectedParts["hood"] = true
+        end
+        if guiCheckBoxGetSelected(btnTrunk) then
+            totalCost = totalCost + 250
+            selectedParts["trunk"] = true
+        end
+        if guiCheckBoxGetSelected(btnFrontBumper) then
+            totalCost = totalCost + 150
+            selectedParts["front_bumper"] = true
+        end
+        if guiCheckBoxGetSelected(btnRearBumper) then
+            totalCost = totalCost + 150
+            selectedParts["rear_bumper"] = true
+        end
+        guiSetText(lblTotal, "Łączny koszt: " .. totalCost .. "$")
+    end
+
+    addEventHandler("onClientGUIClick", btnEngine, updateTotalCost, false)
+    addEventHandler("onClientGUIClick", btnLeftDoor, updateTotalCost, false)
+    addEventHandler("onClientGUIClick", btnRightDoor, updateTotalCost, false)
+    addEventHandler("onClientGUIClick", btnHood, updateTotalCost, false)
+    addEventHandler("onClientGUIClick", btnTrunk, updateTotalCost, false)
+    addEventHandler("onClientGUIClick", btnFrontBumper, updateTotalCost, false)
+    addEventHandler("onClientGUIClick", btnRearBumper, updateTotalCost, false)
+
+    addEventHandler("onClientGUIClick", btnRepair, function()
+        triggerServerEvent("repairVehicle", resourceRoot, selectedParts)
+        destroyElement(mechanicWindow)
+        mechanicWindow = nil
+    end, false)
+
+    addEventHandler("onClientGUIClick", btnClose, function()
+        destroyElement(mechanicWindow)
+        mechanicWindow = nil
+    end, false)
+end
+
+-- Funkcja sprawdzająca wejście w marker
+function onClientMarkerHit(player, matchingDimension)
+    if player == localPlayer and matchingDimension then
+        openMechanicGUI()
+    end
+end
+
+-- Tworzenie eventów dla markerów
+addEventHandler("onClientResourceStart", resourceRoot, function()
+    for _, marker in ipairs(getElementsByType("marker")) do
+        addEventHandler("onClientMarkerHit", marker, onClientMarkerHit)
+    end
+end)
